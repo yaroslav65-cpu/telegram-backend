@@ -1,14 +1,23 @@
 import psycopg2
-from psycopg2 import sql
-
+import os
+from urllib.parse import urlparse
 
 def init_db():
+    DATABASE_URL = os.getenv("DATABASE_URL")
+
+    if DATABASE_URL is None:
+        raise ValueError("DATABASE_URL environment variable is not set")
+
+    result = urlparse(DATABASE_URL)
+
     conn = psycopg2.connect(
-        dbname="messenger",
-        user="postgres",
-        password="1111",
-        host="localhost"
+        dbname=result.path[1:],
+        user=result.username,
+        password=result.password,
+        host=result.hostname,
+        port=result.port
     )
+
     cur = conn.cursor()
 
     # Створення таблиць
